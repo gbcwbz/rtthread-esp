@@ -1,0 +1,40 @@
+menuconfig BT_ENABLED
+    bool "Bluetooth"
+    help
+        Select this option to enable Bluetooth and show the submenu with Bluetooth configuration choices.
+
+config BLUEDROID_ENABLED
+	bool "Bluedroid Bluetooth stack enabled"
+    depends on BT_ENABLED
+	default y
+	help
+		This enables the default Bluedroid Bluetooth stack
+
+config BTC_TASK_STACK_SIZE
+	int "Bluetooth event (callback to application) task stack size"
+    depends on BT_ENABLED
+	default 3072
+	help
+		This select btc task stack size
+
+config BLUEDROID_MEM_DEBUG
+	bool "Bluedroid memory debug"
+    depends on BT_ENABLED
+	default n
+	help
+		Bluedroid memory debug
+
+config BT_DRAM_RELEASE
+	bool "Release DRAM from Classic BT controller"
+    depends on BT_ENABLED
+	default n
+	help
+		This option should only be used when BLE only.
+		Open this option will release about 30K DRAM from Classic BT.
+		The released DRAM will be used as system heap memory.
+
+# Memory reserved at start of DRAM for Bluetooth stack
+config BT_RESERVE_DRAM
+    hex
+    default 0x10000 if BT_ENABLED
+    default 0

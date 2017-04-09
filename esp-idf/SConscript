@@ -1,0 +1,245 @@
+from building import *
+
+# components/bootloader/src/main/bootloader_start.c
+
+# components/freertos/heap_regions.c
+# components/newlib/syscalls.c
+# components/newlib/time.c
+# components/esp32/heap_alloc_caps.c
+
+cwd     = GetCurrentDir()
+src	= Split('''
+components/newlib/locks.c
+components/newlib/reent_init.c
+components/newlib/syscall_table.c
+components/newlib/syscalls.c
+components/newlib/time.c
+components/app_update/esp_ota_ops.c
+components/driver/rtc_module.c
+components/driver/i2c.c
+components/driver/timer.c
+components/driver/sdmmc_host.c
+components/driver/sdmmc_transaction.c
+components/driver/rmt.c
+components/driver/pcnt.c
+components/driver/gpio.c
+components/driver/ledc.c
+components/driver/periph_ctrl.c
+components/driver/i2s.c
+components/driver/uart.c
+components/driver/sigmadelta.c
+components/driver/spi_master.c
+components/esp32/int_wdt.c
+components/esp32/brownout.c
+components/esp32/system_api.c
+components/esp32/hw_random.c
+components/esp32/cpu_freq.c
+components/esp32/event_loop.c
+components/esp32/core_dump.c
+components/esp32/intr_alloc.c
+components/esp32/ipc.c
+components/esp32/freertos_hooks.c
+components/esp32/heap_alloc_caps.c
+components/esp32/deep_sleep.c
+components/esp32/phy_init.c
+components/esp32/crosscore_int.c
+components/esp32/cpu_util.c
+components/esp32/gdbstub.c
+components/esp32/lib_printf.c
+components/esp32/cpu_start.c
+components/esp32/task_wdt.c
+components/esp32/event_default_handlers.c
+components/esp32/panic.c
+components/esp32/hwcrypto/aes.c
+components/esp32/hwcrypto/sha.c
+components/ethernet/emac_main.c
+components/ethernet/emac_dev.c
+components/expat/library/xmltok_impl.c
+components/expat/library/xmlrole.c
+components/expat/library/xmlparse.c
+components/expat/library/xmltok.c
+components/expat/library/xmltok_ns.c
+components/expat/port/chardata.c
+components/expat/port/expat_element.c
+components/expat/port/minicheck.c
+components/fatfs/src/option/unicode.c
+components/fatfs/src/option/syscall.c
+components/fatfs/src/diskio.c
+components/fatfs/src/vfs_fat.c
+components/fatfs/src/vfs_fat_sdmmc.c
+components/fatfs/src/ff.c
+components/freertos/list.c
+components/freertos/port.c
+components/freertos/xtensa_init.c
+components/freertos/croutine.c
+components/freertos/xtensa_overlay_os_hook.c
+components/freertos/xtensa_intr.c
+components/freertos/libcpu.c
+components/freertos/fmq.c
+components/freertos/heap_regions.c
+components/freertos/heap_regions_debug.c
+components/freertos/ringbuf.c
+components/json/library/cJSON.c
+components/json/port/cJSON_Utils.c
+components/log/log.c
+components/lwip/api/lwip_debug.c
+components/lwip/api/sockets.c
+components/lwip/api/api_msg.c
+components/lwip/api/err.c
+components/lwip/api/netbuf.c
+components/lwip/api/tcpip.c
+components/lwip/api/netifapi.c
+components/lwip/api/api_lib.c
+components/lwip/api/netdb.c
+components/lwip/api/pppapi.c
+components/lwip/apps/sntp/sntp.c
+components/lwip/apps/ping/esp_ping.c
+components/lwip/apps/ping/ping.c
+components/lwip/apps/dhcpserver.c
+components/lwip/core/ipv4/icmp.c
+components/lwip/core/ipv4/autoip.c
+components/lwip/core/ipv4/ip4.c
+components/lwip/core/ipv4/igmp.c
+components/lwip/core/ipv4/ip4_addr.c
+components/lwip/core/ipv4/dhcp.c
+components/lwip/core/ipv4/ip_frag.c
+components/lwip/core/ipv6/icmp6.c
+components/lwip/core/ipv6/ethip6.c
+components/lwip/core/ipv6/mld6.c
+components/lwip/core/ipv6/nd6.c
+components/lwip/core/ipv6/ip6.c
+components/lwip/core/ipv6/ip6_addr.c
+components/lwip/core/ipv6/inet6.c
+components/lwip/core/ipv6/dhcp6.c
+components/lwip/core/ipv6/ip6_frag.c
+components/lwip/core/tcp_out.c
+components/lwip/core/udp.c
+components/lwip/core/def.c
+components/lwip/core/timers.c
+components/lwip/core/stats.c
+components/lwip/core/netif.c
+components/lwip/core/pbuf.c
+components/lwip/core/tcp_in.c
+components/lwip/core/raw.c
+components/lwip/core/ip.c
+components/lwip/core/dns.c
+components/lwip/core/tcp.c
+components/lwip/core/sys.c
+components/lwip/core/memp.c
+components/lwip/core/init.c
+components/lwip/core/inet_chksum.c
+components/lwip/core/mem.c
+components/lwip/netif/ethernetif.c
+components/lwip/netif/lowpan6.c
+components/lwip/netif/ethernet.c
+components/lwip/netif/etharp.c
+components/lwip/netif/slipif.c
+components/lwip/port/freertos/sys_arch.c
+components/lwip/port/netif/ethernetif.c
+components/lwip/port/netif/wlanif.c
+components/mdns/mdns.c
+components/micro-ecc/micro-ecc/uECC.c
+components/sdmmc/sdmmc_cmd.c
+components/spi_flash/flash_ops.c
+components/spi_flash/cache_utils.c
+components/spi_flash/spi_flash_rom_patch.c
+components/spi_flash/partition.c
+components/spi_flash/flash_mmap.c
+components/tcpip_adapter/tcpip_adapter_lwip.c
+components/ulp/ulp.c
+components/vfs/vfs.c
+components/vfs/vfs_uart.c
+components/wpa_supplicant/src/crypto/ms_funcs.c
+components/wpa_supplicant/src/crypto/crypto_internal-modexp.c
+components/wpa_supplicant/src/crypto/bignum.c
+components/wpa_supplicant/src/crypto/sha1-pbkdf2.c
+components/wpa_supplicant/src/crypto/md5.c
+components/wpa_supplicant/src/crypto/rc4.c
+components/wpa_supplicant/src/crypto/sha256.c
+components/wpa_supplicant/src/crypto/dh_groups.c
+components/wpa_supplicant/src/crypto/md4-internal.c
+components/wpa_supplicant/src/crypto/sha1-internal.c
+components/wpa_supplicant/src/crypto/aes-wrap.c
+components/wpa_supplicant/src/crypto/crypto_internal.c
+components/wpa_supplicant/src/crypto/dh_group5.c
+components/wpa_supplicant/src/crypto/des-internal.c
+components/wpa_supplicant/src/crypto/crypto_internal-rsa.c
+components/wpa_supplicant/src/crypto/aes-unwrap.c
+components/wpa_supplicant/src/crypto/aes-internal-dec.c
+components/wpa_supplicant/src/crypto/sha1.c
+components/wpa_supplicant/src/crypto/aes-internal.c
+components/wpa_supplicant/src/crypto/md5-internal.c
+components/wpa_supplicant/src/crypto/sha256-internal.c
+components/wpa_supplicant/src/crypto/aes-internal-enc.c
+components/wpa_supplicant/port/os_xtensa.c
+components/xtensa-debug-module/trax.c
+components/xtensa-debug-module/eri.c
+''')
+
+cpp_src = Split('''
+components/cxx/cxx_guards.cpp
+components/nvs_flash/src/nvs_api.cpp
+components/nvs_flash/src/nvs_storage.cpp
+components/nvs_flash/src/nvs_pagemanager.cpp
+components/nvs_flash/src/nvs_item_hash_list.cpp
+components/nvs_flash/src/nvs_page.cpp
+components/nvs_flash/src/nvs_types.cpp
+''')
+
+asm_src = Split('''
+components/freertos/./portasm.S
+components/freertos/./xtensa_vectors.S
+components/freertos/./xtensa_context.S
+components/freertos/./xtensa_intr_asm.S
+''')
+
+CPPPATH = [
+cwd + '/components/app_update/include',
+cwd + '/components/bootloader_support/include',
+cwd + '/components/bootloader_support/include_priv',
+cwd + '/components/bt/include',
+cwd + '/components/cxx/include',
+cwd + '/components/driver/include',
+cwd + '/components/driver/include/driver',
+cwd + '/components/esp32',
+cwd + '/components/esp32/include',
+cwd + '/components/ethernet/include',
+cwd + '/components/expat/port/include',
+cwd + '/components/expat/include/expat',
+cwd + '/components/fatfs/src',
+cwd + '/components/freertos/include',
+cwd + '/components/freertos/include/freertos',
+cwd + '/components/json/include',
+cwd + '/components/json/port/include',
+cwd + '/components/log/include',
+cwd + '/components/lwip/include/lwip',
+cwd + '/components/lwip/include/lwip/port',
+cwd + '/components/lwip/include/lwip/posix',
+cwd + '/components/lwip/apps/ping',
+cwd + '/components/mdns/include',
+cwd + '/components/micro-ecc/micro-ecc',
+cwd + '/components/newlib/include',
+cwd + '/components/newlib/platform_include',
+cwd + '/components/nvs_flash/include',
+cwd + '/components/sdmmc/include',
+cwd + '/components/spi_flash/include',
+cwd + '/components/tcpip_adapter/include',
+cwd + '/components/ulp/include',
+cwd + '/components/vfs/include',
+cwd + '/components/wpa_supplicant/include',
+cwd + '/components/wpa_supplicant/port/include',
+cwd + '/components/xtensa-debug-module/include',
+]
+CPPDEFINES = ['WITH_POSIX', 'ESP_PLATFORM']
+
+group = DefineGroup('esp-idf', src + cpp_src + asm_src, depend = [''], CPPPATH = CPPPATH, CPPDEFINES = CPPDEFINES)
+
+# group = group + SConscript('SConscript_mbedtls')
+# group = group + SConscript('SConscript_nghttp2')
+# group = group + SConscript('SConscript_openssl')
+# group = group + SConscript('SConscript_coap')
+
+group = group + SConscript('SConscript_esp32lib')
+group = group + SConscript('SConscript_newlib')
+
+Return('group')

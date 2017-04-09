@@ -1,0 +1,93 @@
+menu "mbedTLS"
+
+config MBEDTLS_SSL_MAX_CONTENT_LEN
+    int "TLS maximum message content length"
+    default 16384
+    range 512 16384
+    help
+        Maximum TLS message length (in bytes) supported by mbedTLS.
+        
+        16384 is the default and this value is required to comply
+        fully with TLS standards.
+        
+        However you can set a lower value in order to save RAM. This
+        is safe if the other end of the connection supports Maximum
+        Fragment Length Negotiation Extension (max_fragment_length,
+        see RFC6066) or you know for certain that it will never send a
+        message longer than a certain number of bytes.
+        
+        If the value is set too low, symptoms are a failed TLS
+        handshake or a return value of MBEDTLS_ERR_SSL_INVALID_RECORD
+        (-0x7200).
+
+config MBEDTLS_DEBUG
+   bool "Enable mbedTLS debugging"
+   default n
+   help
+       Enable mbedTLS debugging functions at compile time.
+
+       If this option is enabled, you can include
+	   "mbedtls/esp_debug.h" and call mbedtls_esp_enable_debug_log()
+	   at runtime in order to enable mbedTLS debug output via the ESP
+	   log mechanism.
+
+config MBEDTLS_HARDWARE_AES
+   bool "Enable hardware AES acceleration"
+   default y
+   help
+       Enable hardware accelerated AES encryption & decryption.
+
+config MBEDTLS_HARDWARE_MPI
+   bool "Enable hardware MPI (bignum) acceleration"
+   default y
+   help
+       Enable hardware accelerated multiple precision integer operations.
+
+       Hardware accelerated multiplication, modulo multiplication,
+       and modular exponentiation for up to 4096 bit results.
+
+       These operations are used by RSA.
+
+config MBEDTLS_MPI_USE_INTERRUPT
+    bool "Use interrupt for MPI operations"
+    depends on MBEDTLS_HARDWARE_MPI
+    default y
+    help
+        Use an interrupt to coordinate MPI operations.
+
+        This allows other code to run on the CPU while an MPI operation is pending.
+        Otherwise the CPU busy-waits.
+
+config MBEDTLS_HARDWARE_SHA
+   bool "Enable hardware SHA acceleration"
+   default y
+   help
+       Enable hardware accelerated SHA1, SHA256, SHA384 & SHA512 in mbedTLS.
+
+       Due to a hardware limitation, hardware acceleration is only
+       guaranteed if SHA digests are calculated one at a time. If more
+       than one SHA digest is calculated at the same time, only will
+       be calculated fully in hardware and the rest will be calculated
+       (at least partially calculated) in software.
+
+config MBEDTLS_HAVE_TIME
+   bool "Enable mbedtls time"
+   depends on !ESP32_TIME_SYSCALL_USE_NONE
+   default y
+   help
+       System has time.h and time().
+       The time does not need to be correct, only time differences are used,
+
+config MBEDTLS_HAVE_TIME_DATE
+   bool "Enable mbedtls time data"
+   depends on MBEDTLS_HAVE_TIME
+   default n
+   help
+       System has time.h and time(), gmtime() and the clock is correct.
+       The time needs to be correct (not necesarily very accurate, but at least
+       the date should be correct). This is used to verify the validity period of
+       X.509 certificates.
+
+       It is suggested that you should get the real time by "SNTP".
+
+endmenu

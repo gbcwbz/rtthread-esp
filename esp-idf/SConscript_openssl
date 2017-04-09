@@ -1,0 +1,24 @@
+from building import *
+
+cwd     = GetCurrentDir()
+src	= Split('''
+components/openssl/library/ssl_stack.c
+components/openssl/library/ssl_lib.c
+components/openssl/library/ssl_x509.c
+components/openssl/library/ssl_pkey.c
+components/openssl/library/ssl_methods.c
+components/openssl/library/ssl_cert.c
+components/openssl/platform/ssl_port.c
+components/openssl/platform/ssl_pm.c
+''')
+CPPPATH = [
+cwd + '/components/openssl/include',
+cwd + '/components/openssl/include/internal',
+cwd + '/components/openssl/include/platform',
+cwd + '/components/openssl/include/openssl',
+]
+LOCAL_CPPDEFINES = []
+
+group = DefineGroup('esp-openssl', src, depend = [''], CPPPATH = CPPPATH, LOCAL_CPPDEFINES = LOCAL_CPPDEFINES)
+
+Return('group')

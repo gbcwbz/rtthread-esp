@@ -1,0 +1,12 @@
+from building import *
+
+cwd     = GetCurrentDir()
+src	= Split('''
+''')
+LIBS    = ['coexist', 'core', 'net80211', 'phy', 'pp', 'rtc', 'rtc_clk', 
+    'rtc_pm', 'smartconfig', 'wpa', 'wpa2', 'wps', 'hal', 'gcc', 'stdc++']
+LIBPATH = [cwd + '/components/esp32/lib', cwd + '/components/esp32']
+
+group = DefineGroup('esp-libs', src, depend = [''], LIBS = LIBS, LIBPATH = LIBPATH)
+
+Return('group')

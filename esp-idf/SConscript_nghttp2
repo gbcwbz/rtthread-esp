@@ -1,0 +1,36 @@
+from building import *
+
+cwd     = GetCurrentDir()
+src	= Split('''
+components/nghttp/library/nghttp2_map.c
+components/nghttp/library/nghttp2_submit.c
+components/nghttp/library/nghttp2_queue.c
+components/nghttp/library/nghttp2_pq.c
+components/nghttp/library/nghttp2_hd_huffman_data.c
+components/nghttp/library/nghttp2_outbound_item.c
+components/nghttp/library/nghttp2_frame.c
+components/nghttp/library/nghttp2_helper.c
+components/nghttp/library/nghttp2_npn.c
+components/nghttp/library/nghttp2_option.c
+components/nghttp/library/nghttp2_buf.c
+components/nghttp/library/nghttp2_priority_spec.c
+components/nghttp/library/nghttp2_hd.c
+components/nghttp/library/nghttp2_stream.c
+components/nghttp/library/nghttp2_session.c
+components/nghttp/library/nghttp2_callbacks.c
+components/nghttp/library/nghttp2_rcbuf.c
+components/nghttp/library/nghttp2_hd_huffman.c
+components/nghttp/library/nghttp2_mem.c
+components/nghttp/library/nghttp2_version.c
+components/nghttp/library/nghttp2_http.c
+components/nghttp/port/http_parser.c
+''')
+CPPPATH = [
+cwd + '/components/nghttp/port/include',
+cwd + '/components/nghttp/include',
+]
+LOCAL_CPPDEFINES = []
+
+group = DefineGroup('esp-nghttp', src, depend = [''], CPPPATH = CPPPATH, LOCAL_CPPDEFINES = LOCAL_CPPDEFINES)
+
+Return('group')

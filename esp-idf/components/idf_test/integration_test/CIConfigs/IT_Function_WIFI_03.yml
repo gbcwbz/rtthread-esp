@@ -1,0 +1,7 @@
+Config: {execute count: 1, execute order: in order}
+DUT: [SSC1]
+Filter:
+- Add:
+    ID:
+      - WIFI_CONN_0902  # test wifi disconnect reason REASON_BEACON_TIMEOUT
+      - ^WIFI_CONN_0902  # test wifi disconnect reason REASON_BEACON_TIMEOUT

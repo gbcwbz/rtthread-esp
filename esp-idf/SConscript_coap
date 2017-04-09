@@ -1,0 +1,32 @@
+from building import *
+
+cwd     = GetCurrentDir()
+src	= Split('''
+components/coap/libcoap/src/address.c
+components/coap/libcoap/src/async.c
+components/coap/libcoap/src/block.c
+components/coap/libcoap/src/coap_time.c
+components/coap/libcoap/src/debug.c
+components/coap/libcoap/src/encode.c
+components/coap/libcoap/src/hashkey.c
+components/coap/libcoap/src/mem.c
+components/coap/libcoap/src/net.c
+components/coap/libcoap/src/option.c
+components/coap/libcoap/src/pdu.c
+components/coap/libcoap/src/resource.c
+components/coap/libcoap/src/str.c
+components/coap/libcoap/src/subscribe.c
+components/coap/libcoap/src/uri.c
+components/coap/port/coap_io_socket.c
+''')
+CPPPATH = [
+cwd + '/components/coap/port/include',
+cwd + '/components/coap/port/include/coap',
+cwd + '/components/coap/libcoap/include',
+cwd + '/components/coap/libcoap/include/coap',
+]
+LOCAL_CPPDEFINES = []
+
+group = DefineGroup('esp-coap', src, depend = [''], CPPPATH = CPPPATH, LOCAL_CPPDEFINES = LOCAL_CPPDEFINES)
+
+Return('group')

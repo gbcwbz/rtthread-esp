@@ -1,0 +1,11 @@
+from building import *
+
+cwd     = GetCurrentDir()
+src	= Split('''
+''')
+LIBS    = ['c', 'm']
+LIBPATH = [cwd + '/components/newlib/lib']
+
+group = DefineGroup('newlib', src, depend = [''], LIBS = LIBS, LIBPATH = LIBPATH)
+
+Return('group')
