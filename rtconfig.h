@@ -85,4 +85,7 @@
 /* a runtime libc library */
 #define RT_USING_NEWLIB
 
+#define RT_USING_LIBC
+#define RT_USING_PTHREADS
+
 #endif
