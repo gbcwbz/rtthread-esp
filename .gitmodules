@@ -1,0 +1,15 @@
+[submodule "esp-idf/components/esp32/lib"]
+	path = esp-idf/components/esp32/lib
+	url = https://github.com/espressif/esp32-wifi-lib.git
+[submodule "esp-idf/components/esptool_py/esptool"]
+	path = esp-idf/components/esptool_py/esptool
+	url = https://github.com/espressif/esptool.git
+[submodule "esp-idf/components/bt/lib"]
+	path = esp-idf/components/bt/lib
+	url = https://github.com/espressif/esp32-bt-lib.git
+[submodule "esp-idf/components/micro-ecc/micro-ecc"]
+	path = esp-idf/components/micro-ecc/micro-ecc
+	url = https://github.com/kmackay/micro-ecc.git
+[submodule "esp-idf/components/coap/libcoap"]
+	path = esp-idf/components/coap/libcoap
+	url = https://github.com/obgm/libcoap.git
