@@ -1,14 +1,7 @@
 from building import *
 
-# components/bootloader/src/main/bootloader_start.c
-
-# components/freertos/heap_regions.c
-# components/newlib/syscalls.c
-# components/newlib/time.c
-# components/esp32/heap_alloc_caps.c
-
 cwd     = GetCurrentDir()
-src	= Split('''
+src     = Split('''
 components/newlib/locks.c
 components/newlib/reent_init.c
 components/newlib/syscall_table.c
@@ -54,20 +47,6 @@ components/esp32/hwcrypto/aes.c
 components/esp32/hwcrypto/sha.c
 components/ethernet/emac_main.c
 components/ethernet/emac_dev.c
-components/expat/library/xmltok_impl.c
-components/expat/library/xmlrole.c
-components/expat/library/xmlparse.c
-components/expat/library/xmltok.c
-components/expat/library/xmltok_ns.c
-components/expat/port/chardata.c
-components/expat/port/expat_element.c
-components/expat/port/minicheck.c
-components/fatfs/src/option/unicode.c
-components/fatfs/src/option/syscall.c
-components/fatfs/src/diskio.c
-components/fatfs/src/vfs_fat.c
-components/fatfs/src/vfs_fat_sdmmc.c
-components/fatfs/src/ff.c
 components/freertos/list.c
 components/freertos/port.c
 components/freertos/xtensa_init.c
@@ -82,62 +61,6 @@ components/freertos/ringbuf.c
 components/json/library/cJSON.c
 components/json/port/cJSON_Utils.c
 components/log/log.c
-components/lwip/api/lwip_debug.c
-components/lwip/api/sockets.c
-components/lwip/api/api_msg.c
-components/lwip/api/err.c
-components/lwip/api/netbuf.c
-components/lwip/api/tcpip.c
-components/lwip/api/netifapi.c
-components/lwip/api/api_lib.c
-components/lwip/api/netdb.c
-components/lwip/api/pppapi.c
-components/lwip/apps/sntp/sntp.c
-components/lwip/apps/ping/esp_ping.c
-components/lwip/apps/ping/ping.c
-components/lwip/apps/dhcpserver.c
-components/lwip/core/ipv4/icmp.c
-components/lwip/core/ipv4/autoip.c
-components/lwip/core/ipv4/ip4.c
-components/lwip/core/ipv4/igmp.c
-components/lwip/core/ipv4/ip4_addr.c
-components/lwip/core/ipv4/dhcp.c
-components/lwip/core/ipv4/ip_frag.c
-components/lwip/core/ipv6/icmp6.c
-components/lwip/core/ipv6/ethip6.c
-components/lwip/core/ipv6/mld6.c
-components/lwip/core/ipv6/nd6.c
-components/lwip/core/ipv6/ip6.c
-components/lwip/core/ipv6/ip6_addr.c
-components/lwip/core/ipv6/inet6.c
-components/lwip/core/ipv6/dhcp6.c
-components/lwip/core/ipv6/ip6_frag.c
-components/lwip/core/tcp_out.c
-components/lwip/core/udp.c
-components/lwip/core/def.c
-components/lwip/core/timers.c
-components/lwip/core/stats.c
-components/lwip/core/netif.c
-components/lwip/core/pbuf.c
-components/lwip/core/tcp_in.c
-components/lwip/core/raw.c
-components/lwip/core/ip.c
-components/lwip/core/dns.c
-components/lwip/core/tcp.c
-components/lwip/core/sys.c
-components/lwip/core/memp.c
-components/lwip/core/init.c
-components/lwip/core/inet_chksum.c
-components/lwip/core/mem.c
-components/lwip/netif/ethernetif.c
-components/lwip/netif/lowpan6.c
-components/lwip/netif/ethernet.c
-components/lwip/netif/etharp.c
-components/lwip/netif/slipif.c
-components/lwip/port/freertos/sys_arch.c
-components/lwip/port/netif/ethernetif.c
-components/lwip/port/netif/wlanif.c
-components/mdns/mdns.c
 components/micro-ecc/micro-ecc/uECC.c
 components/sdmmc/sdmmc_cmd.c
 components/spi_flash/flash_ops.c
@@ -147,8 +70,6 @@ components/spi_flash/partition.c
 components/spi_flash/flash_mmap.c
 components/tcpip_adapter/tcpip_adapter_lwip.c
 components/ulp/ulp.c
-components/vfs/vfs.c
-components/vfs/vfs_uart.c
 components/wpa_supplicant/src/crypto/ms_funcs.c
 components/wpa_supplicant/src/crypto/crypto_internal-modexp.c
 components/wpa_supplicant/src/crypto/bignum.c
@@ -212,10 +133,6 @@ cwd + '/components/freertos/include/freertos',
 cwd + '/components/json/include',
 cwd + '/components/json/port/include',
 cwd + '/components/log/include',
-cwd + '/components/lwip/include/lwip',
-cwd + '/components/lwip/include/lwip/port',
-cwd + '/components/lwip/include/lwip/posix',
-cwd + '/components/lwip/apps/ping',
 cwd + '/components/mdns/include',
 cwd + '/components/micro-ecc/micro-ecc',
 cwd + '/components/newlib/include',
@@ -241,5 +158,6 @@ group = DefineGroup('esp-idf', src + cpp_src + asm_src, depend = [''], CPPPATH =
 
 group = group + SConscript('SConscript_esp32lib')
 group = group + SConscript('SConscript_newlib')
+group = group + SConscript('SConscript_lwip')
 
 Return('group')

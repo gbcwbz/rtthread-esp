@@ -55,9 +55,29 @@ void rt_hw_interrupt_enable(rt_base_t level)
     portEXIT_CRITICAL_NESTED(level);
 }
 
+static void thread_exit_entry(void *parameter)
+{
+	extern void rt_thread_exit(void);
+
+	rt_thread_t tid;
+	void (*entry)(void* parameter);
+		
+	tid = rt_thread_self();
+
+	entry = tid->entry;
+	entry(parameter);
+
+	/* invoke thread_exit */
+	rt_thread_exit();
+}
+
 rt_uint8_t *rt_hw_stack_init(void *tentry, void *parameter, rt_uint8_t *stack_addr, void *texit)
 {
-    return (rt_uint8_t *)pxPortInitialiseStack(stack_addr, tentry, parameter, pdFALSE);
+	rt_uint8_t *ret_sp;
+
+    ret_sp = (rt_uint8_t *)pxPortInitialiseStack(stack_addr, thread_exit_entry, parameter, pdFALSE);
+
+    return ret_sp;
 }
 
 void rtthread_startup(void)
@@ -307,6 +327,7 @@ QueueHandle_t xQueueGenericCreate( const UBaseType_t uxQueueLength, const UBaseT
 #endif
     return obj;
 }
+
 void vQueueDelete( QueueHandle_t xQueue )
 {
     rt_object_t obj = xQueue;
@@ -322,6 +343,7 @@ void vQueueDelete( QueueHandle_t xQueue )
     else
         rt_fmq_delete((rt_mailbox_t)obj);
 }
+
 BaseType_t xQueueGenericSend( QueueHandle_t xQueue, const void * const pvItemToQueue, TickType_t xTicksToWait, const BaseType_t xCopyPosition )
 {
     rt_object_t obj = xQueue;
@@ -344,7 +366,11 @@ BaseType_t xQueueGenericSend( QueueHandle_t xQueue, const void * const pvItemToQ
 #endif
     return (err==RT_EOK)?pdPASS:errQUEUE_FULL;
 }
-BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue, const void * const pvItemToQueue, BaseType_t * const pxHigherPriorityTaskWoken, const BaseType_t xCopyPosition )
+
+BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue, 
+	const void * const pvItemToQueue, 
+	BaseType_t * const pxHigherPriorityTaskWoken, 
+	const BaseType_t xCopyPosition )
 {
     rt_object_t obj = xQueue;
     rt_interrupt_enter();
@@ -357,7 +383,7 @@ BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue, const void * const pv
     if (obj->type == RT_Object_Class_Semaphore)
         err = rt_sem_release((rt_sem_t)obj);
     else
-        err = rt_fmq_send((rt_mailbox_t)obj,(void *)pvItemToQueue,xCopyPosition,0);
+        err = rt_fmq_send((rt_mailbox_t)obj,(void *)pvItemToQueue, xCopyPosition, 0);
 #ifdef SHOW_QUE_DEBUG_INFO
     ets_printf("QueueSendISROver cur:%s name:%s ret:%d\n",
                 (rt_current_thread)?(rt_current_thread->name):("NULL"),
@@ -367,6 +393,7 @@ BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue, const void * const pv
     rt_interrupt_leave();
     return (err==RT_EOK)?pdPASS:errQUEUE_FULL;
 }
+
 BaseType_t xQueueGenericReceive( QueueHandle_t xQueue, void * const pvBuffer, TickType_t xTicksToWait, const BaseType_t xJustPeeking )
 {
     rt_object_t obj = xQueue;
@@ -389,6 +416,7 @@ BaseType_t xQueueGenericReceive( QueueHandle_t xQueue, void * const pvBuffer, Ti
 #endif
     return (err==RT_EOK)?pdPASS:errQUEUE_EMPTY;
 }
+
 BaseType_t xQueueReceiveFromISR( QueueHandle_t xQueue, void * const pvBuffer, BaseType_t * const pxHigherPriorityTaskWoken )
 {
     rt_object_t obj = xQueue;
@@ -402,16 +430,18 @@ BaseType_t xQueueReceiveFromISR( QueueHandle_t xQueue, void * const pvBuffer, Ba
     if (obj->type == RT_Object_Class_Semaphore)
         err = rt_sem_take((rt_sem_t)obj,0);
     else
-        err = rt_fmq_recv((rt_mailbox_t)obj,(void *)pvBuffer,pdFALSE,0);
+        err = rt_fmq_recv((rt_mailbox_t)obj,(void *)pvBuffer, pdFALSE, 0);
 #ifdef SHOW_QUE_DEBUG_INFO
     ets_printf("QueueRecvISROver cur:%s name:%s ret:%d\n",
                 (rt_current_thread)?(rt_current_thread->name):("NULL"),
                 obj->name,err);
 #endif
+
     if (pxHigherPriorityTaskWoken) *pxHigherPriorityTaskWoken = pdFALSE;
     rt_interrupt_leave();
     return (err==RT_EOK)?pdPASS:errQUEUE_EMPTY;
 }
+
 UBaseType_t uxQueueMessagesWaiting( const QueueHandle_t xQueue )
 { 
     rt_object_t obj = xQueue;
@@ -424,13 +454,62 @@ UBaseType_t uxQueueMessagesWaiting( const QueueHandle_t xQueue )
         count = ((rt_mailbox_t)obj)->entry;
     return count;
 }
+
 UBaseType_t uxQueueMessagesWaitingFromISR( const QueueHandle_t xQueue ) { return uxQueueMessagesWaiting(xQueue); }
 QueueHandle_t xQueueCreateMutex( const uint8_t ucQueueType ) { return xQueueGenericCreate(1,0,ucQueueType); }
 BaseType_t xQueueTakeMutexRecursive( QueueHandle_t xMutex, TickType_t xTicksToWait ) { return xQueueGenericReceive(xMutex,0,xTicksToWait,pdFALSE); }
 BaseType_t xQueueGiveMutexRecursive( QueueHandle_t xMutex ) { return xQueueGenericSend(xMutex,0,0,queueSEND_TO_BACK); }
-BaseType_t xQueueGiveFromISR( QueueHandle_t xQueue, BaseType_t * const pxHigherPriorityTaskWoken ) { return xQueueGenericSendFromISR(xQueue,0,pxHigherPriorityTaskWoken,queueSEND_TO_BACK); }
-void* xQueueGetMutexHolder( QueueHandle_t xSemaphore ) { return NULL; }
-BaseType_t xQueueGenericReset( QueueHandle_t xQueue, BaseType_t xNewQueue ) { return pdPASS; }
+
+BaseType_t xQueueGiveFromISR( QueueHandle_t xQueue, BaseType_t * const pxHigherPriorityTaskWoken ) 
+{ 
+	return xQueueGenericSendFromISR(xQueue,0,pxHigherPriorityTaskWoken,queueSEND_TO_BACK); 
+}
+
+void* xQueueGetMutexHolder( QueueHandle_t xSemaphore ) 
+{ 
+	return NULL; 
+}
+
+BaseType_t xQueueGenericReset( QueueHandle_t xQueue, BaseType_t xNewQueue ) 
+{ 
+	return pdPASS; 
+}
+
+BaseType_t xQueueIsQueueFullFromISR( const QueueHandle_t xQueue )
+{
+	BaseType_t xReturn = pdFALSE;
+    rt_object_t obj = xQueue;
+
+	if (obj->type == RT_Object_Class_MailBox)
+	{
+		rt_ubase_t level;
+		struct rt_mailbox *mb = (struct rt_mailbox *)obj;
+
+		level = rt_hw_interrupt_disable();
+		if (mb->entry == mb->size) xReturn = pdTRUE;
+		rt_hw_interrupt_enable(level);
+	}
+
+	return xReturn;
+}
+
+UBaseType_t uxQueueSpacesAvailable( const QueueHandle_t xQueue )
+{
+	UBaseType_t uxReturn = 0;
+    rt_object_t obj = xQueue;
+
+	if (obj->type == RT_Object_Class_MailBox)
+	{
+		rt_ubase_t level;
+		struct rt_mailbox *mb = (struct rt_mailbox *)obj;
+
+		level = rt_hw_interrupt_disable();
+		uxReturn = mb->size - mb->entry;
+		rt_hw_interrupt_enable(level);
+	}
+	
+	return uxReturn;
+}
 
 TimerHandle_t xTimerCreate( const char * const pcTimerName, const TickType_t xTimerPeriodInTicks, const UBaseType_t uxAutoReload, void * const pvTimerID, TimerCallbackFunction_t pxCallbackFunction )
 {
@@ -453,6 +532,7 @@ TimerHandle_t xTimerCreate( const char * const pcTimerName, const TickType_t xTi
 #endif
     return obj;
 }
+
 BaseType_t xTimerGenericCommand( TimerHandle_t xTimer, const BaseType_t xCommandID, const TickType_t xOptionalValue, BaseType_t * const pxHigherPriorityTaskWoken, const TickType_t xTicksToWait )
 {
     rt_timer_t obj = xTimer;

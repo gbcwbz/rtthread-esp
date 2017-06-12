@@ -41,7 +41,6 @@ extern int _scanf_float(struct _reent *rptr,
               FILE *fp,
               va_list *ap);
 
-
 static struct syscall_stub_table s_stub_table = {
     .__getreent = &__getreent,
     ._malloc_r = &_malloc_r,
@@ -50,23 +49,39 @@ static struct syscall_stub_table s_stub_table = {
     ._calloc_r = &_calloc_r,
     ._abort = &abort,
     ._system_r = &_system_r,
-    ._rename_r = &esp_vfs_rename,
     ._times_r = &_times_r,
     ._gettimeofday_r = &_gettimeofday_r,
     ._raise_r = (void (*)(struct _reent *r)) &_raise_r,
+
+	/* vfs */
+#if 0
+    ._rename_r = &esp_vfs_rename,
     ._unlink_r = &esp_vfs_unlink,
     ._link_r = &esp_vfs_link,
     ._stat_r = &esp_vfs_stat,
     ._fstat_r = &esp_vfs_fstat,
+	._close_r = &esp_vfs_close,
+	._open_r = &esp_vfs_open,
+	._write_r = (int (*)(struct _reent *r, int, const void *, int)) &esp_vfs_write,
+	._lseek_r = (int (*)(struct _reent *r, int, int, int)) &esp_vfs_lseek,
+	._read_r = (int (*)(struct _reent *r, int, void *, int)) &esp_vfs_read,
+#else
+	._rename_r = _rename_r,
+	._unlink_r = _unlink_r,
+	._link_r   = _link_r,
+	._stat_r   = _stat_r,
+	._fstat_r  = _fstat_r,
+	._close_r  = _close_r,
+	._open_r   = _open_r,
+	._write_r  = _write_r,
+	._lseek_r  = _lseek_r,
+	._read_r   = _read_r,
+#endif
+
     ._sbrk_r = &_sbrk_r,
     ._getpid_r = &_getpid_r,
     ._kill_r = &_kill_r,
     ._exit_r = NULL,    // never called in ROM
-    ._close_r = &esp_vfs_close,
-    ._open_r = &esp_vfs_open,
-    ._write_r = (int (*)(struct _reent *r, int, const void *, int)) &esp_vfs_write,
-    ._lseek_r = (int (*)(struct _reent *r, int, int, int)) &esp_vfs_lseek,
-    ._read_r = (int (*)(struct _reent *r, int, void *, int)) &esp_vfs_read,
     ._lock_init = &_lock_init,
     ._lock_init_recursive = &_lock_init_recursive,
     ._lock_close = &_lock_close,
@@ -94,5 +109,4 @@ void esp_setup_syscall_table()
     environ = malloc(sizeof(char*));
     environ[0] = NULL;
 }
-
 

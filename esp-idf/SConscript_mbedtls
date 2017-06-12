@@ -1,7 +1,7 @@
 from building import *
 
-cwd     = GetCurrentDir()
-src	= Split('''
+cwd = GetCurrentDir()
+src = Split('''
 components/mbedtls/library/havege.c
 components/mbedtls/library/ssl_cookie.c
 components/mbedtls/library/md5.c
@@ -79,11 +79,13 @@ components/mbedtls/port/esp_sha256.c
 components/mbedtls/port/net.c
 components/mbedtls/port/esp_sha1.c
 ''')
+
 CPPPATH = [
 cwd + '/components/mbedtls/port/include',
 cwd + '/components/mbedtls/include',
+cwd + '/components/mbedtls/include/mbedtls',
 ]
-LOCAL_CPPDEFINES = ['MBEDTLS_CONFIG_FILE="mbedtls/esp_config.h"', 'HAVE_CONFIG_H']
+LOCAL_CPPDEFINES = ['MBEDTLS_CONFIG_FILE=\\"mbedtls/esp_config.h\\"', 'HAVE_CONFIG_H']
 
 group = DefineGroup('esp-mbedtls', src, depend = [''], CPPPATH = CPPPATH, LOCAL_CPPDEFINES = LOCAL_CPPDEFINES)
 

@@ -166,6 +166,19 @@ void IRAM_ATTR call_start_cpu1()
 }
 #endif //!CONFIG_FREERTOS_UNICORE
 
+int reent_std_init(void)
+{
+	FILE* std_console;
+	const char* console = "/dev/console";
+
+	std_console = fopen(console, "w");
+    _GLOBAL_REENT->_stdin  = std_console;
+    _GLOBAL_REENT->_stdout = std_console;
+    _GLOBAL_REENT->_stderr = std_console;
+
+    return 0;
+}
+
 void start_cpu0_default(void)
 {
     esp_setup_syscall_table();
@@ -189,6 +202,8 @@ void start_cpu0_default(void)
     esp_setup_time_syscalls();
     esp_vfs_dev_uart_register();
     esp_reent_init(_GLOBAL_REENT);
+
+#if 0
 #ifndef CONFIG_CONSOLE_UART_NONE
     const char* default_uart_dev = "/dev/uart/" STRINGIFY(CONFIG_CONSOLE_UART_NUM);
     _GLOBAL_REENT->_stdin  = fopen(default_uart_dev, "r");
@@ -199,6 +214,12 @@ void start_cpu0_default(void)
     _GLOBAL_REENT->_stdout = (FILE*) &__sf_fake_stdout;
     _GLOBAL_REENT->_stderr = (FILE*) &__sf_fake_stderr;
 #endif
+#else
+	_GLOBAL_REENT->_stdin  = (FILE*) &__sf_fake_stdin;
+	_GLOBAL_REENT->_stdout = (FILE*) &__sf_fake_stdout;
+	_GLOBAL_REENT->_stderr = (FILE*) &__sf_fake_stderr;
+#endif
+
     do_global_ctors();
 
 #if 1

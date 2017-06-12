@@ -27,6 +27,8 @@
  * 2013-03-01     aozima       fixed the stat(st_mtime) issue.
  * 2014-01-26     Bernard      Check the sector size before mount.
  * 2017-02-13     Hichard      Update Fatfs version to 0.12b, support exFAT.
+ * 2017-04-11     Bernard      fix the st_blksize issue.
+ * 2017-05-26     Urey         fix f_mount error when mount more fats
  */
 
 #include <rtthread.h>
@@ -112,25 +114,27 @@ int dfs_elm_mount(struct dfs_filesystem *fs, unsigned long rwflag, const void *d
     FATFS *fat;
     FRESULT result;
     int index;
-	struct rt_device_blk_geometry geometry;
+    struct rt_device_blk_geometry geometry;
+    char logic_nbr[2] = {'0',':'};
 
     /* get an empty position */
     index = get_disk(RT_NULL);
     if (index == -1)
         return -DFS_STATUS_ENOENT;
+    logic_nbr[0] = '0' + index;
 
     /* save device */
     disk[index] = fs->dev_id;
-	/* check sector size */
-	if (rt_device_control(fs->dev_id, RT_DEVICE_CTRL_BLK_GETGEOME, &geometry) == RT_EOK)
-	{
-		if (geometry.bytes_per_sector > _MAX_SS) 
-		{
-			rt_kprintf("The sector size of device is greater than the sector size of FAT.\n");
-			return -DFS_STATUS_EINVAL;
-		}
-	}
-	
+    /* check sector size */
+    if (rt_device_control(fs->dev_id, RT_DEVICE_CTRL_BLK_GETGEOME, &geometry) == RT_EOK)
+    {
+        if (geometry.bytes_per_sector > _MAX_SS)
+        {
+            rt_kprintf("The sector size of device is greater than the sector size of FAT.\n");
+            return -DFS_STATUS_EINVAL;
+        }
+    }
+
     fat = (FATFS *)rt_malloc(sizeof(FATFS));
     if (fat == RT_NULL)
     {
@@ -139,7 +143,7 @@ int dfs_elm_mount(struct dfs_filesystem *fs, unsigned long rwflag, const void *d
     }
 
     /* mount fatfs, always 0 logic driver */
-    result = f_mount(fat,"", (BYTE)index);
+    result = f_mount(fat, (const TCHAR*)logic_nbr, 1);
     if (result == FR_OK)
     {
         char drive[8];
@@ -149,7 +153,7 @@ int dfs_elm_mount(struct dfs_filesystem *fs, unsigned long rwflag, const void *d
         dir = (DIR *)rt_malloc(sizeof(DIR));
         if (dir == RT_NULL)
         {
-            f_mount(RT_NULL,"",(BYTE)index);
+            f_mount(RT_NULL, (const TCHAR*)logic_nbr, 1);
             disk[index] = RT_NULL;
             rt_free(fat);
             return -DFS_STATUS_ENOMEM;
@@ -167,7 +171,7 @@ int dfs_elm_mount(struct dfs_filesystem *fs, unsigned long rwflag, const void *d
     }
 
 __err:
-    f_mount(RT_NULL, "", (BYTE)index);
+    f_mount(RT_NULL, (const TCHAR*)logic_nbr, 1);
     disk[index] = RT_NULL;
     rt_free(fat);
     return elm_result_to_dfs(result);
@@ -208,12 +212,12 @@ int dfs_elm_mkfs(rt_device_t dev_id)
     int flag;
     FRESULT result;
     int index;
-    
+
     work = rt_malloc(_MAX_SS);
     if(RT_NULL == work) {
         return -DFS_STATUS_ENOMEM;
     }
-    
+
     if (dev_id == RT_NULL)
         return -DFS_STATUS_EINVAL;
 
@@ -733,7 +737,6 @@ int dfs_elm_stat(struct dfs_filesystem *fs, const char *path, struct stat *st)
             st->st_mode &= ~(DFS_S_IWUSR | DFS_S_IWGRP | DFS_S_IWOTH);
 
         st->st_size  = file_info.fsize;
-        st->st_blksize = 512;
 
         /* get st_mtime. */
         {
@@ -897,9 +900,33 @@ DRESULT disk_ioctl(BYTE drv, BYTE ctrl, void *buff)
     return RES_OK;
 }
 
-rt_time_t get_fattime(void)
+DWORD get_fattime(void)
 {
-    return time(RT_NULL);
+    time_t now;
+    struct tm *p_tm;
+    struct tm tm_now;
+    DWORD fat_time;
+
+    /* get current time */
+    now = time(RT_NULL);
+
+    /* lock scheduler. */
+    rt_enter_critical();
+    /* converts calendar time time into local time. */
+    p_tm = localtime(&now);
+    /* copy the statically located variable */
+    memcpy(&tm_now, p_tm, sizeof(struct tm));
+    /* unlock scheduler. */
+    rt_exit_critical();
+
+    fat_time =  (DWORD)(tm_now.tm_year - 80) << 25 |
+                (DWORD)(tm_now.tm_mon + 1)   << 21 |
+                (DWORD)tm_now.tm_mday        << 16 |
+                (DWORD)tm_now.tm_hour        << 11 |
+                (DWORD)tm_now.tm_min         <<  5 |
+                (DWORD)tm_now.tm_sec / 2 ;
+
+    return fat_time;
 }
 
 #if _FS_REENTRANT

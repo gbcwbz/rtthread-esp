@@ -1,0 +1,71 @@
+from building import *
+
+cwd     = GetCurrentDir()
+src     = Split('''
+components/lwip/api/lwip_debug.c
+components/lwip/api/sockets.c
+components/lwip/api/api_msg.c
+components/lwip/api/err.c
+components/lwip/api/netbuf.c
+components/lwip/api/tcpip.c
+components/lwip/api/netifapi.c
+components/lwip/api/api_lib.c
+components/lwip/api/netdb.c
+components/lwip/api/pppapi.c
+components/lwip/apps/sntp/sntp.c
+components/lwip/apps/ping/esp_ping.c
+components/lwip/apps/ping/ping.c
+components/lwip/apps/dhcpserver.c
+components/lwip/core/ipv4/icmp.c
+components/lwip/core/ipv4/autoip.c
+components/lwip/core/ipv4/ip4.c
+components/lwip/core/ipv4/igmp.c
+components/lwip/core/ipv4/ip4_addr.c
+components/lwip/core/ipv4/dhcp.c
+components/lwip/core/ipv4/ip_frag.c
+components/lwip/core/ipv6/icmp6.c
+components/lwip/core/ipv6/ethip6.c
+components/lwip/core/ipv6/mld6.c
+components/lwip/core/ipv6/nd6.c
+components/lwip/core/ipv6/ip6.c
+components/lwip/core/ipv6/ip6_addr.c
+components/lwip/core/ipv6/inet6.c
+components/lwip/core/ipv6/dhcp6.c
+components/lwip/core/ipv6/ip6_frag.c
+components/lwip/core/tcp_out.c
+components/lwip/core/udp.c
+components/lwip/core/def.c
+components/lwip/core/timers.c
+components/lwip/core/stats.c
+components/lwip/core/netif.c
+components/lwip/core/pbuf.c
+components/lwip/core/tcp_in.c
+components/lwip/core/raw.c
+components/lwip/core/ip.c
+components/lwip/core/dns.c
+components/lwip/core/tcp.c
+components/lwip/core/sys.c
+components/lwip/core/memp.c
+components/lwip/core/init.c
+components/lwip/core/inet_chksum.c
+components/lwip/core/mem.c
+components/lwip/netif/ethernetif.c
+components/lwip/netif/lowpan6.c
+components/lwip/netif/ethernet.c
+components/lwip/netif/etharp.c
+components/lwip/netif/slipif.c
+components/lwip/port/freertos/sys_arch.c
+components/lwip/port/netif/ethernetif.c
+components/lwip/port/netif/wlanif.c
+''')
+
+CPPPATH = [
+cwd + '/components/lwip/include/lwip',
+cwd + '/components/lwip/include/lwip/port',
+cwd + '/components/lwip/include/lwip/posix',
+cwd + '/components/lwip/apps/ping',
+]
+
+group = DefineGroup('esp-idf', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')
