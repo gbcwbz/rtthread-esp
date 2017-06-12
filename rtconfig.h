@@ -19,7 +19,7 @@
 #define RT_THREAD_PRIORITY_MAX	32
 
 /* Tick per Second */
-#define RT_TICK_PER_SECOND	100
+#define RT_TICK_PER_SECOND	CONFIG_FREERTOS_HZ
 
 /* SECTION: RT_DEBUG */
 /* Thread Debug */
@@ -54,6 +54,8 @@
 
 /* Using Dynamic Heap Management */
 #define RT_USING_HEAP
+#define RT_USING_MEMHEAP
+#define RT_USING_MEMPOOL
 
 /* SECTION: Device System */
 /* Using Device System */
@@ -79,7 +81,7 @@
 /* Using symbol table */
 #define FINSH_USING_SYMTAB
 #define FINSH_USING_DESCRIPTION
-#define FINSH_THREAD_STACK_SIZE	2048
+#define FINSH_THREAD_STACK_SIZE		4096
 
 /* SECTION: a runtime libc library */
 /* a runtime libc library */
