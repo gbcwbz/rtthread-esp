@@ -7,21 +7,19 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 #include <stdio.h>
+
 #include "esp_system.h"
 #include "nvs_flash.h"
+
 #include <rtthread.h>
 #include <board.h>
 #include <shell.h>
-#include <msh.h>
+#include <finsh.h>
 
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp_log.h"
-
-extern long list_thread(void);
-extern int cmd_time(int argc, char **argv);
-
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
@@ -55,8 +53,8 @@ void rt_hw_wifi_init()
     ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
     wifi_config_t sta_config = {
         .sta = {
-            .ssid = "rtthread-modou",
-            .password = "rtthread1810",
+            .ssid = "your_ssid",
+            .password = "your_passwd",
             .bssid_set = false
         }
     };
@@ -65,21 +63,70 @@ void rt_hw_wifi_init()
     ESP_ERROR_CHECK( esp_wifi_connect() );
 }
 
+#include <dfs.h>
+#include <dfs_fs.h>
+#include <dfs_elm.h>
+#include <dfs_init.h>
+#include <devfs.h>
+#include <drv_sflash.h>
+#include <drv_mmc.h>
+
+#include <libc.h>
+
+extern int reent_std_init(void);
+
+int rtthread_components_init(void)
+{
+    dfs_init();
+    devfs_init();
+    elm_init();
+
+    finsh_system_init();
+
+    rt_hw_sflash_init();
+    if (dfs_mount("flash", "/", "elm", 0, 0) == 0)
+    {
+        rt_kprintf("Mount filesystem done!\n");
+    }
+
+    /* mount devfs */
+    dfs_mount(RT_NULL, "/dev", "devfs", 0, 0);
+
+    libc_system_init();
+    reent_std_init();
+
+    /* mount sd to "/" */
+    rt_hw_sdmmc_init();
+    if (dfs_mount("sd", "/sd", "elm", 0, 0) == 0)
+    {
+        rt_kprintf("Mount filesystem done!\n");
+    }
+    else
+    {
+        rt_kprintf("mount failed, errno=%d\n", rt_get_errno());
+    }
+
+    return 0;
+}
+
+int libc_test(int argc, char** argv)
+{
+    printf("libc, 100=%d, 100.5=%f\n", 100, 100.5);
+    printf("str: %s\n", "string");
+
+    rt_kprintf("thread: 0x%08x\n", rt_thread_self());
+
+    return 0;
+}
+MSH_CMD_EXPORT(libc_test, libc test!!!);
+
 void app_main()
 {
     nvs_flash_init();
 
-    // rt_hw_board_init();
-    // rt_show_version();
-
-#ifdef RT_USING_FINSH
-    finsh_system_init();
-#endif
-
+    rtthread_components_init();
     rt_hw_wifi_init();
 
-    while (1)
-    {
-        rt_thread_delay(rt_tick_from_millisecond(1000));
-    }
+    return ;
 }
+
