@@ -50,7 +50,13 @@ _fork_r(struct _reent *ptr)
 int
 _fstat_r(struct _reent *ptr, int fd, struct stat *pstat)
 {
-	rt_kprintf("_fstat_r\n");
+	rt_kprintf("_fstat_r, fd=%d\n", fd);
+	if (fd == 0)
+	{
+		pstat->st_mode = S_IFCHR;
+		return 0;
+	}
+	
     return fstat(fd, pstat);
 }
 
@@ -98,7 +104,6 @@ _lseek_r(struct _reent *ptr, int fd, _off_t pos, int whence)
 #else
     _off_t rc;
 
-	rt_kprintf("_lseek_r\n");
     rc = lseek(fd, pos, whence);
     return rc;
 #endif
@@ -173,7 +178,6 @@ _stat_r(struct _reent *ptr, const char *file, struct stat *pstat)
 #else
     int rc;
 
-	rt_kprintf("_stat_r\n");
     rc = stat(file, pstat);
     return rc;
 #endif
@@ -214,7 +218,7 @@ _wait_r(struct _reent *ptr, int *status)
 _ssize_t
 _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 {
-    if (fd < 3)
+    if (fd == 0)
     {
 #ifdef RT_USING_CONSOLE
         rt_device_t console_device;

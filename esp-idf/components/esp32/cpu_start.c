@@ -224,7 +224,10 @@ void start_cpu0_default(void)
 
 #if 1
     extern void rtthread_startup(void);
+	extern int rtthread_stdio_init(void);
+
     rtthread_startup();
+	rtthread_stdio_init();
 #endif
 
 #if CONFIG_INT_WDT
