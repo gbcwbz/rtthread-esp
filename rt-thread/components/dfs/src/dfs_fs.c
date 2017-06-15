@@ -116,11 +116,11 @@ struct dfs_filesystem *dfs_filesystem_lookup(const char *path)
 }
 
 /**
- * this function will return the mounted path for specified device.
+ * this function will return the mounted path for specified device. 
  *
  * @param device the device object which is mounted.
  *
- * @return the mounted path or RT_NULL if none device mounted.
+ * @return the mounted path or RT_NULL if none device mounted. 
  */
 const char* dfs_filesystem_get_mounted_path(struct rt_device* device)
 {
@@ -133,7 +133,7 @@ const char* dfs_filesystem_get_mounted_path(struct rt_device* device)
     {
 		/* fint the mounted device */
         if (iter->ops == RT_NULL) continue;
-		else if (iter->dev_id == device)
+		else if (iter->dev_id == device) 
 		{
 			path = iter->path;
 			break;

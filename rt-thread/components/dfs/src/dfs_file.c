@@ -136,6 +136,9 @@ int dfs_file_close(struct dfs_fd *fd)
 {
     int result = 0;
 
+    if (fd == RT_NULL)
+        return -DFS_STATUS_ENXIO;
+
     if (fd != RT_NULL && fd->fs->ops->close != RT_NULL)
         result = fd->fs->ops->close(fd);
 

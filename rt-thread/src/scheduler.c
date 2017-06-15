@@ -199,7 +199,7 @@ void rt_schedule(void)
     level = rt_hw_interrupt_disable();
 
     /* check the scheduler is enabled or not */
-    if (rt_scheduler_lock_nest == 0 && rt_current_thread != RT_NULL)
+    if (rt_scheduler_lock_nest == 0)
     {
         register rt_ubase_t highest_ready_priority;
 

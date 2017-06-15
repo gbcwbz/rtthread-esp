@@ -164,7 +164,7 @@ void rt_thread_inited_sethook (void (*hook)(rt_thread_t thread));
  * idle thread interface
  */
 void rt_thread_idle_init(void);
-#ifdef RT_USING_HOOK
+#if defined(RT_USING_HOOK) || defined(RT_USING_IDLE_HOOK)
 void rt_thread_idle_sethook(void (*hook)(void));
 #endif
 void rt_thread_idle_excute(void);
@@ -507,7 +507,7 @@ rt_device_t rt_console_get_device(void);
 rt_err_t rt_get_errno(void);
 void rt_set_errno(rt_err_t no);
 int *_rt_errno(void);
-#ifndef RT_USING_NEWLIB
+#if !defined(RT_USING_NEWLIB) && !defined(_WIN32)
 #ifndef errno
 #define errno    *_rt_errno()
 #endif
