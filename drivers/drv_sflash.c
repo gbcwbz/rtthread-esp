@@ -66,8 +66,6 @@ static rt_size_t drv_sflash_read(rt_device_t dev, rt_off_t pos, void *buffer, rt
 
 static rt_size_t drv_sflash_write(rt_device_t dev, rt_off_t pos, const void *buffer, rt_size_t size)
 {
-    struct device_sflash *sflash = (struct device_sflash *)dev;
-
     RT_ASSERT(dev != RT_NULL);
 
     /* read only */
