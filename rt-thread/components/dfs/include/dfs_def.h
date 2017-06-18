@@ -108,6 +108,11 @@
 #define DFS_O_EXCL               O_EXCL
 #define DFS_O_TRUNC              O_TRUNC
 #define DFS_O_APPEND             O_APPEND
+
+#ifndef O_DIRECTORY
+#define O_DIRECTORY              0x0200000
+#endif
+
 #define DFS_O_DIRECTORY          O_DIRECTORY
 
 /* Seek flags */

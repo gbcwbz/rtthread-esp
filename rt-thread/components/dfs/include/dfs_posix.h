@@ -119,7 +119,7 @@ int closedir(DIR* d);
 struct stat;
 
 /* file api*/
-int open(const char *file, int flags, int mode);
+int open(const char *file, int flags, ...);
 int close(int d);
 #ifdef RT_USING_NEWLIB
 _READ_WRITE_RETURN_TYPE _EXFUN(read, (int __fd, void *__buf, size_t __nbyte));
