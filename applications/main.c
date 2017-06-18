@@ -52,9 +52,9 @@ void rt_hw_wifi_init()
     ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
     ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
     wifi_config_t sta_config = {
-        .sta = {
-            .ssid = "ssid",
-            .password = "passwd",
+        .sta = { 
+            .ssid = "realthread_309",
+            .password = "02158995663",
             .bssid_set = false
         }
     };
@@ -75,18 +75,18 @@ void rt_hw_wifi_init()
 /* pre-initialization for stdio console */
 int rtthread_stdio_init(void)
 {
-	extern int reent_std_init(void);
+    extern int reent_std_init(void);
 
-	dfs_init();
-	devfs_init();
+    dfs_init();
+    devfs_init();
 
     /* mount devfs */
     dfs_mount(RT_NULL, "/dev", "devfs", 0, 0);
 
     libc_system_init();
-	reent_std_init();
+    reent_std_init();
 
-	return 0;
+    return 0;
 }
 
 int rtthread_components_init(void)
@@ -102,8 +102,8 @@ int rtthread_components_init(void)
     }
 
 #ifdef RT_USING_PTHREADS
-	extern int pthread_system_init(void);
-	pthread_system_init();
+    extern int pthread_system_init(void);
+    pthread_system_init();
 #endif
 
     /* mount sd to "/" */
@@ -139,4 +139,3 @@ void app_main()
 
     return ;
 }
-
