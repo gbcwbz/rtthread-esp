@@ -41,9 +41,12 @@ void smartconfig_handler(smartconfig_status_t status, void *pdata)
         ESP_LOGI(TAG, "SC_STATUS_LINK");
         wifi_config_t wifi_config;
         wifi_config.sta = *((wifi_sta_config_t *)pdata);
-        esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
-
+		rt_kprintf("ssid:%s\npasswd:%s\n", wifi_config.sta.ssid, wifi_config.sta.password);
+		
         esp_wifi_disconnect();
+        esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+		esp_wifi_connect();
+
         rt_event_send(smartconfig_event_group, LINKED_BIT);
         break;
     case SC_STATUS_LINK_OVER:
@@ -55,6 +58,11 @@ void smartconfig_handler(smartconfig_status_t status, void *pdata)
             ESP_LOGI(TAG, "Phone ip: %d.%d.%d.%d", phone_ip[0],
                    phone_ip[1], phone_ip[2], phone_ip[3]);
         }
+		else
+		{
+			rt_kprintf("start airlink\n");
+		}
+		
         esp_smartconfig_stop();
         rt_event_send(smartconfig_event_group, CONNECTED_BIT);
         break;
