@@ -20,6 +20,12 @@ config RT_USING_I2C
     bool "Using I2C device drivers"
     default n
 
+    if RT_USING_I2C
+        config RT_USING_I2C_BITOPS
+        bool "Support GPIO to simulate I2C operations"
+        default y
+    endif
+
 config RT_USING_PIN
     bool "Using generic GPIO device drivers"
     default y

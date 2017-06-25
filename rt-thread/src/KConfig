@@ -57,6 +57,12 @@ config RT_USING_HOOK
     help
         Enable the hook function when system running, such as idle thread hook, thread context switch etc.
 
+config RT_USING_IDLE_HOOK
+    bool "Enable idle hook"
+    default y
+    help
+        Enable the idle hook function, when idle thread running, this hook function will be invoked.
+
 config RT_USING_TIMER_SOFT
     bool "Enable software timer with a timer thread"
     default n
@@ -73,6 +79,10 @@ config RT_TIMER_THREAD_STACK_SIZE
     default 512
 
 endif
+
+config IDLE_THREAD_STACK_SIZE
+    int "The stack size of idle thread"
+    default 512
 
 menu "Inter-Thread communication"
 
@@ -117,13 +127,18 @@ menu "Memory Management"
         default y
 
     if RT_USING_HEAP
+        choice HEAP_ALGORITHM
+            prompt "Memory management algorithm"
+            default RT_USING_SMALL_MEM
+            help
+                Which management algorithm is used.
 
-        config RT_USING_SMALL_MEM
-            bool "The memory management for small memory"
+            config RT_USING_SMALL_MEM
+                bool "algorithm for small memory"
 
-        config RT_USING_SLAB
-            bool "Using SLAB memory management for large memory"
-
+            config RT_USING_SLAB
+                bool "slab for large memory"
+        endchoice
     endif
 
 endmenu
