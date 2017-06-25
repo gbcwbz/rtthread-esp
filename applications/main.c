@@ -27,7 +27,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
     switch(event->event_id) {
     case SYSTEM_EVENT_STA_START:
-		esp_wifi_connect();
+        esp_wifi_connect();
         rt_kprintf("STA_START\n");
         break;
     case SYSTEM_EVENT_STA_GOT_IP:
@@ -130,18 +130,20 @@ void app_main()
     rtthread_components_init();
     rt_hw_wifi_init();
 
-	wifi_config_t wifi_config;
-	esp_wifi_get_config(WIFI_IF_STA, &wifi_config);
-	wifi_config.sta.ssid[0] = 0;
-	if (0 == wifi_config.sta.ssid[0])
-	{
-		wifi_airkiss();
-	}
-	else
-	{
-		esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
-		esp_wifi_connect();
-	}
+    wifi_config_t wifi_config;
+    memset(&wifi_config, 0x0, sizeof(wifi_config));
+
+    esp_wifi_get_config(WIFI_IF_STA, &wifi_config);
+    if (wifi_config.sta.ssid[0] == 0)
+    {
+        printf("startup airkiss...\n");
+        wifi_airkiss();
+    }
+    else
+    {
+        esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+        esp_wifi_connect();
+    }
 
     return ;
 }
